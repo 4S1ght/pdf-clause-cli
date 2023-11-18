@@ -87,7 +87,6 @@ program
 
         }
 
-        console.log(`Done in ${process.uptime().toPrecision(1)}s`)
 
     })
 
