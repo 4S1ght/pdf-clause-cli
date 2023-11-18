@@ -35,6 +35,8 @@ program
     .option('-ms, --marginSides <ms>', 'The amount of margin to be left at the left/right edge of the page.', '43')
     .option('-fs, --fontSize <fs>', 'Clause font size', '11')
     .option('-f, --font <font>', 'path to the font .ttf/.otf file')
+    .option('-fh, --fontHeight <height>', 'Height of individual lines of text produced using the supplied font.', '17')
+    .option('-ctr, --center', 'Whether to center the text.', true)
     .action(async (arg) => {
 
         if (!arg.in) err('--in option required.')
@@ -42,13 +44,15 @@ program
         if (!arg.font) err('--font option required.')
 
         // Prepare parameters
-        const input     = toAbsolute(arg.in)
-        const output    = toAbsolute(arg.out || path.join(__cwd, path.basename(arg.in)))
-        const mb        = parseInt(arg.marginBottom)
-        const ms        = parseInt(arg.marginSides)
-        const fontsize  = parseInt(arg.fontSize)
-        const clause    = arg.clause
-        const font      = toAbsolute(arg.font)
+        const input         = toAbsolute(arg.in)
+        const output        = toAbsolute(arg.out || path.join(__cwd, path.basename(arg.in)))
+        const mb            = parseInt(arg.marginBottom)
+        const ms            = parseInt(arg.marginSides)
+        const fontsize      = parseInt(arg.fontSize)
+        const clause        = arg.clause
+        const font          = toAbsolute(arg.font)
+        const fontHeight    = parseInt(arg.fontHeight)
+        const centerText    = arg.center
 
         if (!output.includes('{name}')) err('No {name} specified in the file name.')
 
@@ -60,22 +64,50 @@ program
             const readyClause = clause.replace('{name}', cn)
 
             const pdfDoc = await PDFDocument.load(bytes)
-            const page = pdfDoc.getPages()[0]
+            const pages = pdfDoc.getPages()
+            const page = pages[pages.length - 1]
             const { width, height } = page.getSize()
 
             pdfDoc.registerFontkit(fontkit)
             const documentFont = await pdfDoc.embedFont(fs.readFileSync(font))
 
-            // TODO: Do manual text line wrapping/spacing in order to keep consistent bottom margin.
-            // Draw a string of text diagonally across the first page
-            page.drawText(readyClause, {
-                x: ms,
-                y: mb,
-                size: fontsize,
-                font: documentFont,
-                maxWidth: width - ms*2,
-                color: rgb(0, 0, 0),
+            // Text line wrapping =============================================
+
+            const words: string[] = readyClause.split(' ')
+            let lines: string[] = ['']
+            let lengths: number[] = [0]
+            let line = 0
+            let maxTextWidth = width - ms*2
+            
+            while (words.length > 0) {
+                const word = words.shift()!
+                const paragraph = `${lines[line]} ${word}`
+                const paragraphLength = documentFont.widthOfTextAtSize(paragraph, fontsize)
+                if (paragraphLength < maxTextWidth) {
+                    lines[line] = paragraph
+                    lengths[line] = paragraphLength
+                }
+                else {
+                    line++
+                    lines[line] = ''
+                    words.unshift(word)
+                }
+            }
+
+            lines = lines.reverse().map(x => x.replace(' ', ''))
+            lengths = lengths.reverse()    
+
+            lines.forEach((line, i) => {
+                page.drawText(line, {
+                    x: centerText ? width/2 - lengths[i]/2 : ms,
+                    y: mb + (fontHeight * i),
+                    size: fontsize,
+                    font: documentFont,
+                    lineHeight: fontHeight,
+                    color: rgb(0, 0, 0),
+                })
             })
+            
 
             // Serialize the PDFDocument to bytes (a Uint8Array)
             const pdfBytes = await pdfDoc.save()
