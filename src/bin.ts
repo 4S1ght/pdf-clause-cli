@@ -66,6 +66,7 @@ program
             pdfDoc.registerFontkit(fontkit)
             const documentFont = await pdfDoc.embedFont(fs.readFileSync(font))
 
+            // TODO: Do manual text line wrapping/spacing in order to keep consistent bottom margin.
             // Draw a string of text diagonally across the first page
             page.drawText(readyClause, {
                 x: ms,
@@ -86,7 +87,6 @@ program
             console.log(`Out: "${out}"`)
 
         }
-
 
     })
 
