@@ -18,7 +18,7 @@ The tool requires two independent input files
 - A font file in an OTF or TTF format.
 - A PDF file to draw the clause on.
 
-Download the font of your choosing and prepare the Presume PDF.  
+Download the font of your choosing and prepare the Resume PDF.  
 After preparing all the files you will be able to use the command:
 
 ```shell
@@ -34,7 +34,7 @@ names and create two copies inside a `files/` directory. The clause will be writ
 the font supplied from `my-font.ttf`, at the bottom of the PDF's last page.
 
 **Note:** It is **crucial** for the font used to support any special characters used by 
-your language of choice, otherwise the program will throw out errors if it encounters any 
+your language of choice, otherwise the program will throw errors if it encounters any 
 special characters, such as `ź`, `ę`, etc.
 
 ---
