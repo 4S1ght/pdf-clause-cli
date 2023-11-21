@@ -1,5 +1,7 @@
 # pdf-clause-cli
-A small tool for automatically printing GDPR clauses on PDF resumes for multiple companies.
+In a classic developer fashion, I've decided It's too much hustle to spend 10 seconds on editing the GDPR clause in my resume manually, so I spent exponentially more time on writing a tool that does it for me. Hereby I present to you "pdf-clause-cli" - A small tool for automatically printing GDPR clauses on PDF resumes for multiple companies at a time!
+
+**Note:** This tool requires the NodeJS runtime, preferably NodeJS 20 and above.
 
 # Installation
 ```shell
