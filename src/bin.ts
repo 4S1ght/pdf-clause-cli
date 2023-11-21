@@ -36,7 +36,7 @@ program
     .option('-fs, --fontSize <fs>', 'Clause font size', '11')
     .option('-f, --font <font>', 'path to the font .ttf/.otf file')
     .option('-fh, --fontHeight <height>', 'Height of individual lines of text produced using the supplied font.', '17')
-    .option('-ctr, --center', 'Whether to center the text.', true)
+    .option('-ctr, --center <bool>', 'Whether to center the text.', true)
     .action(async (arg) => {
 
         if (!arg.in) err('--in option required.')
@@ -52,8 +52,8 @@ program
         const clause        = arg.clause
         const font          = toAbsolute(arg.font)
         const fontHeight    = parseInt(arg.fontHeight)
-        const centerText    = arg.center
-
+        const centerText    = arg.center === true
+        
         if (!output.includes('{name}')) err('No {name} specified in the file name.')
 
         const bytes = fs.readFileSync(input)
